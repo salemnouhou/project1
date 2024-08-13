@@ -1,0 +1,45 @@
+services:
+  db:
+    build:
+      context: ./SQL
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootlaravel
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  backend:
+    build:
+      context: ./LARAVEL
+    container_name: lara-image
+    depends_on:
+      - db
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: kickoff_db
+      DB_USERNAME: sam
+      DB_PASSWORD: password
+    volumes:
+      - ./Step2:/var/www
+    ports:
+      - "8181:8181"
+    command: php artisan serve --host=0.0.0.0 --port=8181
+
+  frontend:
+    build:
+      context: ./VUE
+    container_name: vue-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
